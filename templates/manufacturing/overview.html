@@ -1,0 +1,78 @@
+{% extends "layouts/base.html" %}
+{% block title %}Manufacturing Process — Navalsingh Sugar Factory{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<style>
+.mfg-hero { background:linear-gradient(135deg,#8e352e,#c0392b); color:#fff; padding:4rem 0 3rem; margin-bottom:3rem; }
+.mfg-hero h1 { font-size:2.5rem; font-weight:800; }
+.stage-card { border:none; border-radius:14px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,.1); transition:transform .3s; height:100%; }
+.stage-card:hover { transform:translateY(-6px); box-shadow:0 8px 30px rgba(142,53,46,.2); }
+.stage-card img { height:200px; width:100%; object-fit:cover; }
+.stage-card .card-body { padding:1.5rem; }
+.stage-num { display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:50%; background:#8e352e; color:#fff; font-weight:800; font-size:.9rem; flex-shrink:0; }
+.stage-title { font-size:1.15rem; font-weight:700; color:#8e352e; }
+.stage-sub   { font-size:.8rem; color:#999; }
+.btn-stage { background:#8e352e; color:#fff; border:none; border-radius:8px; padding:.5rem 1.2rem; font-size:.88rem; font-weight:600; text-decoration:none; }
+.btn-stage:hover { background:#6d2722; color:#fff; }
+.process-flow { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:.5rem; margin-bottom:3rem; }
+.flow-step { background:#fff; border:2px solid #8e352e; border-radius:8px; padding:.4rem .9rem; font-size:.8rem; font-weight:600; color:#8e352e; }
+.flow-arrow { color:#8e352e; font-size:1.2rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% comment %} <div class="mfg-hero text-center"> {% endcomment %}
+{% load static %}
+
+<div class="mfg-hero text-center"
+     style="background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+      url('{% static "images/manuimg.jpeg" %}') center/cover no-repeat;">
+    <div class="container">
+        <h1><i class="fas fa-cogs me-3"></i>Manufacturing Process</h1>
+        <p class="opacity-85 lead">From sugarcane to crystallized sugar — every step at Navalsingh Sugar Factory</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Process flow arrows -->
+    <div class="process-flow">
+        <span class="flow-step">Cane Yard</span>
+        <span class="flow-arrow"><i class="fas fa-arrow-right"></i></span>
+        <span class="flow-step">Milling</span>
+        <span class="flow-arrow"><i class="fas fa-arrow-right"></i></span>
+        <span class="flow-step">Boiler</span>
+        <span class="flow-arrow"><i class="fas fa-arrow-right"></i></span>
+        <span class="flow-step">Clarification</span>
+        <span class="flow-arrow"><i class="fas fa-arrow-right"></i></span>
+        <span class="flow-step">Crystallization</span>
+        <span class="flow-arrow"><i class="fas fa-arrow-right"></i></span>
+        <span class="flow-step">Curing</span>
+    </div>
+
+    <div class="row g-4 mb-5">
+        {% for slug, content in stages %}
+        <div class="col-sm-6 col-lg-4">
+            <div class="card stage-card">
+                <img src="{% static 'images/' %}{{ content.image }}"
+                     alt="{{ content.title }}">
+
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="stage-num">{{ forloop.counter }}</span>
+                        <div>
+                            <div class="stage-title">{{ content.title }}</div>
+                            <div class="stage-sub">{{ content.subtitle }}</div>
+                        </div>
+                    </div>
+                    <p class="small text-muted mb-3">{{ content.description|truncatewords:25 }}</p>
+                    <a href="{% url 'manufacturing:stage_detail' slug %}" class="btn-stage">
+                        Read more <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

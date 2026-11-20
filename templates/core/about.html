@@ -1,0 +1,57 @@
+{% extends "layouts/base.html" %}
+{% block title %}About Us — Navalsingh Sugar Factory{% endblock %}
+{% block content %}
+<div style="background:linear-gradient(135deg,#8e352e,#c0392b);color:#fff;padding:3rem 0;">
+    <div class="container">
+        <h1 class="fw-800" style="font-weight:800;">About Us</h1>
+        <p class="opacity-75">Learn about Navalsingh Sahakari Shakkar Karkhana Maryadit</p>
+    </div>
+</div>
+
+<!-- Sub-nav -->
+<div style="background:#fff;border-bottom:3px solid #f0e0de;margin-bottom:2rem;">
+    <div class="container">
+        <a href="{% url 'core:about' %}" style="display:inline-block;padding:10px 16px;color:#8e352e;text-decoration:none;font-size:.9rem;font-weight:600;border-bottom:3px solid #8e352e;margin-bottom:-3px;" id="about">Overview</a>
+        <a href="{% url 'core:contact' %}" style="display:inline-block;padding:10px 16px;color:#555;text-decoration:none;font-size:.9rem;font-weight:600;">Contact Info</a>
+        <a href="{% url 'core:manager' %}" style="display:inline-block;padding:10px 16px;color:#555;text-decoration:none;font-size:.9rem;font-weight:600;">Manager</a>
+        <a href="{% url 'core:performance' %}" style="display:inline-block;padding:10px 16px;color:#555;text-decoration:none;font-size:.9rem;font-weight:600;">Performance Data</a>
+    </div>
+</div>
+
+<div class="container py-4">
+    <!-- Image gallery -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <img src="/static/images/image1.img.jpeg" class="img-fluid rounded-3 shadow-sm w-100" style="height:250px;object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&h=250&fit=crop'" alt="Factory 1">
+        </div>
+        <div class="col-md-4">
+            <img src="/static/images/image2.img.jpeg" class="img-fluid rounded-3 shadow-sm w-100" style="height:250px;object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400&h=250&fit=crop'" alt="Factory 2">
+        </div>
+        <div class="col-md-4">
+            <img src="/static/images/image3.img.jpeg" class="img-fluid rounded-3 shadow-sm w-100" style="height:250px;object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=250&fit=crop'" alt="Factory 3">
+        </div>
+    </div>
+
+    <!-- Content -->
+    {% if about %}
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h2 class="fw-bold mb-3" style="color:#8e352e;">{{ about.title }}</h2>
+            <p class="lead text-muted">{{ about.description }}</p>
+            <div class="mt-4 p-4 rounded-3" style="background:#fff8f7;border-left:4px solid #8e352e;">
+                <strong style="color:#8e352e;">Established:</strong> {{ about.established_year }}<br>
+                <strong style="color:#8e352e;">Location:</strong> Navalnagar (Jhiri), Burhanpur, Madhya Pradesh
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h2 class="fw-bold" style="color:#8e352e;">Navalsingh Sahakari Shakkar Karkhana Maryadit</h2>
+            <p class="lead text-muted mt-3">Navalsingh Sahakari Shakkar Karkhana Maryadit is a sugar manufacturing cooperative established in 1981 by Thakur Shivkumar Singh. Located in Navalnagar (Jhiri), Burhanpur, Madhya Pradesh, the factory has been serving the farming community for over four decades.</p>
+            <p class="text-muted">The factory provides an efficient cane booking and delivery system for local farmers, ensuring fair and transparent operations across all stages of sugar production — from cane reception to crystallised sugar.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

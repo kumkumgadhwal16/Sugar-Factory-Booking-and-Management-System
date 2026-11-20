@@ -1,0 +1,293 @@
+{% extends "layouts/base.html" %}
+{% block title %}Book a Slot — Navalsingh Sugar Factory{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Page Layout ── */
+.booking-page { background: #f8f5f4; min-height: calc(100vh - 140px); padding: 2rem 0; }
+.booking-header { background: linear-gradient(135deg,#8e352e,#c0392b); color:#fff; border-radius:12px; padding:1.5rem 2rem; margin-bottom:2rem; }
+.booking-header h2 { font-weight:700; margin:0; }
+.booking-header p  { opacity:.85; margin:0; font-size:.95rem; }
+
+/* ── Calendar ── */
+#calendar { width:100%; border-collapse:separate; border-spacing:4px; }
+#calendar caption {
+    font-size:1.6rem; font-weight:800; color:#8e352e;
+    padding:1rem 0 1.5rem; text-align:center; caption-side:top;
+}
+.cal-weekdays th {
+    background:#8e352e; color:#fff; text-align:center;
+    padding:10px 4px; font-size:.8rem; text-transform:uppercase;
+    letter-spacing:1px; border-radius:6px;
+}
+.cal-day {
+    vertical-align:top; min-height:110px; border-radius:8px;
+    border:2px solid #f0e0de; background:#fff; padding:6px;
+    cursor:pointer; transition:all .2s;
+}
+.cal-day:hover:not(.past):not(.full) { border-color:#8e352e; background:#fff8f7; transform:translateY(-2px); box-shadow:0 4px 15px rgba(142,53,46,.15); }
+.cal-day.past        { background:#f5f5f5; color:#bbb; cursor:default; opacity:.6; }
+.cal-day.today       { border-color:#e74c3c !important; border-width:3px !important; }
+.cal-day.full        { background:#fff0f0; border-color:#f5c6cb; cursor:not-allowed; }
+.cal-day.user-booked { background:#e8f5e9; border-color:#a5d6a7; cursor:default; }
+.cal-day.empty       { background:transparent; border:none; cursor:default; }
+.day-num {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:28px; height:28px; border-radius:50%; font-size:.85rem;
+    font-weight:700; background:#8e352e; color:#fff; float:right; margin-bottom:4px;
+}
+.cal-day.past .day-num { background:#ccc; }
+.cal-day.full .day-num { background:#e74c3c; }
+.cal-day.user-booked .day-num { background:#2e7d32; }
+.event-chip {
+    display:block; font-size:.72rem; background:#e4f2f2;
+    border:1px solid #b5dbdc; color:#009aaf; border-radius:4px;
+    padding:2px 5px; margin-bottom:3px; overflow:hidden;
+    white-space:nowrap; text-overflow:ellipsis;
+}
+.event-chip.own { background:#e8f5e9; border-color:#a5d6a7; color:#2e7d32; }
+.slot-badge { font-size:.7rem; padding:2px 6px; border-radius:10px; }
+.badge-avail { background:#d4edda; color:#155724; }
+.badge-full  { background:#f8d7da; color:#721c24; }
+.badge-booked{ background:#d1ecf1; color:#0c5460; }
+
+/* ── Legend ── */
+.legend { display:flex; flex-wrap:wrap; gap:.6rem; margin-top:1rem; }
+.legend-item { display:flex; align-items:center; gap:.4rem; font-size:.82rem; }
+.legend-box { width:18px; height:18px; border-radius:4px; border:2px solid #ddd; flex-shrink:0; }
+
+/* ── Sidebar ── */
+.sidebar-card { background:#fff; border-radius:12px; box-shadow:0 2px 15px rgba(0,0,0,.08); padding:1.5rem; margin-bottom:1.2rem; }
+.sidebar-card h6 { color:#8e352e; font-weight:700; border-bottom:2px solid #f0e0de; padding-bottom:.5rem; margin-bottom:1rem; }
+.stat-item { display:flex; justify-content:space-between; align-items:center; padding:.4rem 0; border-bottom:1px solid #f5f5f5; }
+.stat-item:last-child { border-bottom:none; }
+.stat-val { font-weight:700; color:#8e352e; font-size:1.1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="booking-page">
+<div class="container">
+
+    <!-- Header -->
+    <div class="booking-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2><i class="fas fa-calendar-alt me-2"></i>Book Your Cane Delivery Slot</h2>
+            <p>Click on any available date to book your slot. Max 3 bookings per day.</p>
+        </div>
+        <a href="{% url 'booking:dashboard' %}" class="btn btn-light fw-semibold">
+            <i class="fas fa-tachometer-alt me-1"></i> My Dashboard
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Calendar -->
+        <div class="col-lg-9">
+            <div class="bg-white rounded-3 shadow-sm p-3">
+                <table id="calendar">
+                    <caption>{{ month_label }}</caption>
+                    <thead>
+                        <tr class="cal-weekdays">
+                            <th>Sun</th><th>Mon</th><th>Tue</th>
+                            <th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% comment %}
+                        Build the calendar grid.
+                        first_weekday = 0 for Sunday start (0=Sun,1=Mon,...,6=Sat)
+                        {% endcomment %}
+                        {% with cell_num=0 %}
+                        <tr>
+                        {% for cell in cells %}
+                            {% if forloop.counter0 == 0 %}
+                                {% for pad in ""|ljust:first_weekday %}
+                                    <td class="cal-day empty"></td>
+                                {% endfor %}
+                            {% endif %}
+
+                            {% comment %} Determine class {% endcomment %}
+                            {% if cell.is_past %}
+                                <td class="cal-day past">
+                                    <div class="day-num">{{ cell.day }}</div>
+                                    <div style="clear:both;"></div>
+                                </td>
+                            {% elif cell.user_booked %}
+                                <td class="cal-day user-booked" title="You have already booked this day">
+                                    <div class="day-num">{{ cell.day }}</div>
+                                    <div style="clear:both;"></div>
+                                    <span class="event-chip own"><i class="fas fa-check-circle me-1"></i>Your booking</span>
+                                </td>
+                            {% elif cell.is_full %}
+                                <td class="cal-day full" title="Slot full — no more bookings">
+                                    <div class="day-num">{{ cell.day }}</div>
+                                    <div style="clear:both;"></div>
+                                    {% for email in cell.events %}
+                                    <span class="event-chip">{{ email|truncatechars:18 }}</span>
+                                    {% endfor %}
+                                    <span class="slot-badge badge-full">FULL</span>
+                                </td>
+                            {% else %}
+                                <td class="cal-day available{% if cell.is_today %} today{% endif %}"
+                                    data-day="{{ cell.day }}"
+                                    data-month="{{ month_label }}"
+                                    style="cursor:pointer;"
+                                    title="Click to book {{ cell.day }} {{ month_label }}">
+                                    <div class="day-num">{{ cell.day }}</div>
+                                    <div style="clear:both;"></div>
+                                    {% for email in cell.events %}
+                                    <span class="event-chip">{{ email|truncatechars:18 }}</span>
+                                    {% endfor %}
+                                    {% if cell.events %}
+                                    <span class="slot-badge badge-avail">{{ cell.events|length }}/3 booked</span>
+                                    {% endif %}
+                                </td>
+                            {% endif %}
+
+                            {% comment %} Close row every 7 cells {% endcomment %}
+                            {% with col_pos=forloop.counter0|add:first_weekday %}
+                            {% endwith %}
+                        {% endfor %}
+                     
+                        </tr>
+                        {% endwith %}
+                    </tbody>
+                </table>
+
+                <!-- Legend -->
+                <div class="legend px-2">
+                    <span class="legend-item"><span class="legend-box" style="background:#fff8f7;border-color:#8e352e;"></span>Available</span>
+                    <span class="legend-item"><span class="legend-box" style="background:#e8f5e9;border-color:#a5d6a7;"></span>Your Booking</span>
+                    <span class="legend-item"><span class="legend-box" style="background:#fff0f0;border-color:#f5c6cb;"></span>Slot Full</span>
+                    <span class="legend-item"><span class="legend-box" style="background:#f5f5f5;border-color:#ddd;"></span>Past Day</span>
+                    <span class="legend-item"><span class="legend-box" style="border-color:#e74c3c;border-width:3px;"></span>Today</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-3">
+            <div class="sidebar-card">
+                <h6><i class="fas fa-info-circle me-2"></i>How to Book</h6>
+                <ol class="small ps-3 text-muted mb-0">
+                    <li class="mb-2">Click on any <strong>white/highlighted</strong> date</li>
+                    <li class="mb-2">Confirm your booking in the popup</li>
+                    <li class="mb-2">View your bookings in Dashboard</li>
+                </ol>
+            </div>
+            <div class="sidebar-card">
+                <h6><i class="fas fa-rules me-2"></i>Booking Rules</h6>
+                <ul class="small ps-3 text-muted mb-0">
+                    <li class="mb-1">Max <strong>3 farmers</strong> per day</li>
+                    <li class="mb-1">One booking per day per farmer</li>
+                    <li class="mb-1">Cannot book past dates</li>
+                </ul>
+            </div>
+            <div class="sidebar-card">
+                <h6><i class="fas fa-chart-bar me-2"></i>This Month</h6>
+                {% with total=cells|length %}
+                <div class="stat-item">
+                    <span class="small text-muted">Total Days</span>
+                    <span class="stat-val">{{ days_in_month }}</span>
+                </div>
+                {% endwith %}
+                <div class="stat-item">
+                    <span class="small text-muted">Month</span>
+                    <span class="stat-val" style="font-size:.9rem;">{{ month_label }}</span>
+                </div>
+                <div class="mt-3">
+                    <a href="{% url 'booking:dashboard' %}" class="btn btn-sm w-100" style="background:#8e352e;color:#fff;">
+                        <i class="fas fa-list me-1"></i> View My Bookings
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// CSRF token helper
+function getCookie(name) {
+    let v = null;
+    if (document.cookie && document.cookie !== '') {
+        document.cookie.split(';').forEach(function(c) {
+            c = c.trim();
+            if (c.startsWith(name + '=')) {
+                v = decodeURIComponent(c.substring(name.length + 1));
+            }
+        });
+    }
+    return v;
+}
+const csrfToken = getCookie('csrftoken');
+
+// Click handler for available calendar days
+console.log(document.querySelectorAll('.cal-day.available'));
+
+document.querySelectorAll('.cal-day.available').forEach(function(cell) {
+    cell.addEventListener('click', function() {
+        const day       = this.dataset.day;
+        const monthName = this.dataset.month;
+
+        Swal.fire({
+            title: 'Confirm Booking',
+            html: `Book your cane delivery slot for <br><strong>${day} ${monthName}</strong>?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#8e352e',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-check me-1"></i> Yes, Book it!',
+            cancelButtonText: 'Cancel',
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                // Show loading
+                Swal.fire({
+                    title: 'Processing...',
+                    text: 'Please wait while we confirm your booking.',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                fetch("{% url 'booking:book_slot' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({ date: day, month_name: monthName }),
+                })
+                .then(r => r.json())
+                .then(function(data) {
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Booking Confirmed!',
+                            text: data.message,
+                            confirmButtonColor: '#8e352e',
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Booking Failed',
+                            text: data.message,
+                            confirmButtonColor: '#8e352e',
+                            footer: '<a href="{% url "booking:dashboard" %}">View my bookings</a>',
+                        });
+                    }
+                })
+                .catch(function(err) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Network Error',
+                        text: 'Could not reach the server. Please try again.',
+                    });
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

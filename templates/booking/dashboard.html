@@ -1,0 +1,283 @@
+{% extends "layouts/base.html" %}
+{% block title %}Dashboard — Navalsingh Sugar Factory{% endblock %}
+
+{% block extra_css %}
+<style>
+.dashboard-page { background:#f8f5f4; min-height:calc(100vh - 140px); }
+
+/* ── Sidebar ── */
+.sidebar {
+    width:220px; min-height:calc(100vh - 72px); background:#343a40;
+    position:fixed; top:72px; left:0; z-index:100;
+    transition:width .25s ease;
+    overflow:hidden;
+}
+.sidebar.collapsed { width:56px; }
+.sidebar-header { color:#fff; padding:16px 20px 10px; font-size:1rem; font-weight:600; white-space:nowrap; }
+.sidebar .nav-link {
+    color:#ccc; padding:10px 20px; display:flex; align-items:center;
+    gap:12px; white-space:nowrap; transition:background .2s;
+    text-decoration:none; font-size:.93rem;
+}
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active { background:#212529; border-left:4px solid #ccc; color:#fff; }
+.sidebar .nav-link i { width:18px; text-align:center; flex-shrink:0; }
+.sidebar .link-text { overflow:hidden; transition:opacity .2s; }
+.sidebar.collapsed .link-text,
+.sidebar.collapsed .sidebar-header span { opacity:0; pointer-events:none; }
+
+/* ── Main content ── */
+.main-content { margin-left:220px; transition:margin-left .25s ease; padding:0; }
+.main-content.expanded { margin-left:56px; }
+
+/* ── Top navbar ── */
+.dash-topbar { background:#343a40; color:#fff; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; }
+.dash-topbar a { color:#ccc; text-decoration:none; padding:0 8px; font-size:1.1rem; }
+.dash-topbar a:hover { color:#fff; }
+
+/* ── Stats ── */
+.stat-card { border-radius:12px; border:none; box-shadow:0 2px 15px rgba(0,0,0,.08); }
+.stat-card .card-body { padding:1.5rem; }
+.stat-num { font-size:2.5rem; font-weight:800; }
+
+/* ── Table ── */
+.booking-table thead { background:#8e352e; color:#fff; }
+.booking-table tbody tr:hover { background:#fff8f7; }
+.no-bookings { text-align:center; padding:3rem; color:#999; }
+.no-bookings i { font-size:3rem; margin-bottom:1rem; display:block; }
+
+/* ── Profile card ── */
+.profile-mini { background:#fff; border-radius:12px; box-shadow:0 2px 15px rgba(0,0,0,.08); padding:1.5rem; }
+.profile-mini h6 { color:#8e352e; font-weight:700; border-bottom:2px solid #f0e0de; padding-bottom:.5rem; margin-bottom:1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+
+<!-- ── Sidebar ── -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <i class="fas fa-industry me-2"></i>
+        <span>Sugar Factory</span>
+    </div>
+    <nav>
+        <a class="nav-link active" href="{% url 'booking:dashboard' %}">
+            <i class="fas fa-tachometer-alt"></i><span class="link-text">Dashboard</span>
+        </a>
+        <a class="nav-link" href="{% url 'booking:calendar' %}">
+            <i class="fas fa-calendar-alt"></i><span class="link-text">Book Slot</span>
+        </a>
+        <a class="nav-link" href="{% url 'accounts:update_profile' %}">
+            <i class="fas fa-user-edit"></i><span class="link-text">Update Profile</span>
+        </a>
+        <a class="nav-link" href="{% url 'core:home' %}">
+            <i class="fas fa-home"></i><span class="link-text">Home Page</span>
+        </a>
+        <a class="nav-link text-danger" href="{% url 'accounts:logout' %}">
+            <i class="fas fa-sign-out-alt"></i><span class="link-text">Logout</span>
+        </a>
+    </nav>
+</div>
+
+<!-- ── Main ── -->
+<div class="main-content" id="mainContent">
+
+    <!-- Top bar -->
+    <div class="dash-topbar">
+        <a href="#" id="sidebarToggle"><i class="fas fa-bars"></i></a>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-light small"><i class="fas fa-user me-1"></i>{{ user.email }}</span>
+            <a href="{% url 'booking:calendar' %}" title="Book Slot"><i class="fas fa-calendar-plus"></i></a>
+            <a href="{% url 'core:home' %}" title="Home"><i class="fas fa-home"></i></a>
+            <a href="{% url 'accounts:logout' %}" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </div>
+
+    <div class="container-fluid p-4">
+
+        <!-- Stats row -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="card stat-card text-white" style="background:linear-gradient(135deg,#8e352e,#c0392b);">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="mb-1 opacity-75 small">Total Bookings</p>
+                                <div class="stat-num">{{ total_bookings }}</div>
+                            </div>
+                            <i class="fas fa-calendar-check fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card stat-card text-white" style="background:linear-gradient(135deg,#1a6e3c,#27ae60);">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="mb-1 opacity-75 small">Account Status</p>
+                                <div class="stat-num" style="font-size:1.3rem;">Active</div>
+                            </div>
+                            <i class="fas fa-check-circle fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="mb-1 text-muted small">Profile</p>
+                                <div class="stat-num" style="font-size:1.1rem; color:#8e352e;">
+                                    {% if profile %}Complete{% else %}Incomplete{% endif %}
+                                </div>
+                            </div>
+                            <i class="fas fa-user-circle fa-2x text-muted"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card stat-card" style="background:#fff8f7; border:2px solid #8e352e;">
+                    <div class="card-body text-center">
+                        <a href="{% url 'booking:calendar' %}" class="text-decoration-none" style="color:#8e352e;">
+                            <i class="fas fa-plus-circle fa-2x mb-1 d-block"></i>
+                            <span class="fw-bold">Book New Slot</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Bookings Table -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                        <h6 class="mb-0 fw-bold" style="color:#8e352e;">
+                            <i class="fas fa-list me-2"></i>My Bookings
+                        </h6>
+                        <a href="{% url 'booking:calendar' %}" class="btn btn-sm text-white" style="background:#8e352e;">
+                            <i class="fas fa-plus me-1"></i>New Booking
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if bookings %}
+                        <div class="table-responsive">
+                            <table class="table booking-table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Email</th>
+                                        <th>Day</th>
+                                        <th>Month</th>
+                                        <th>Booked At</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for b in bookings %}
+                                    <tr>
+                                        <td class="text-muted small">{{ b.pk }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td><span class="badge rounded-pill" style="background:#8e352e;">{{ b.tdate }}</span></td>
+                                        <td>{{ b.month_name }}</td>
+                                        <td class="text-muted small">{{ b.booked_at|date:"d M Y H:i" }}</td>
+                                        <td>
+                                            <a href="{% url 'booking:cancel' b.pk %}"
+                                               class="btn btn-sm btn-outline-danger"
+                                               onclick="return confirm('Cancel this booking for {{ b.tdate }} {{ b.month_name }}?')">
+                                                <i class="fas fa-times"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="no-bookings">
+                            <i class="fas fa-calendar-times text-muted"></i>
+                            <h6 class="text-muted">No bookings yet</h6>
+                            <p class="small text-muted">Click the button below to book your first cane delivery slot.</p>
+                            <a href="{% url 'booking:calendar' %}" class="btn text-white mt-2" style="background:#8e352e;">
+                                <i class="fas fa-calendar-plus me-1"></i>Book a Slot
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile mini card -->
+            <div class="col-lg-4">
+                <div class="profile-mini mb-3">
+                    <h6><i class="fas fa-user me-2"></i>My Profile</h6>
+                    {% if profile %}
+                    <div class="mb-2">
+                        <small class="text-muted">Full Name</small>
+                        <p class="mb-0 fw-semibold">{{ profile.fname }} {{ profile.lname }}</p>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Email</small>
+                        <p class="mb-0">{{ user.email }}</p>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Phone</small>
+                        <p class="mb-0">{{ profile.phone }}</p>
+                    </div>
+                    {% if profile.ifsc %}
+                    <div class="mb-2">
+                        <small class="text-muted">IFSC Code</small>
+                        <p class="mb-0">{{ profile.ifsc }}</p>
+                    </div>
+                    {% endif %}
+                    <a href="{% url 'accounts:update_profile' %}" class="btn btn-sm w-100 mt-2" style="background:#8e352e;color:#fff;">
+                        <i class="fas fa-edit me-1"></i>Edit Profile
+                    </a>
+                    {% else %}
+                    <div class="text-center py-2">
+                        <i class="fas fa-user-slash fa-2x text-muted mb-2 d-block"></i>
+                        <p class="text-muted small">Profile not completed.</p>
+                        <a href="{% url 'accounts:update_profile' %}" class="btn btn-sm w-100" style="background:#8e352e;color:#fff;">
+                            <i class="fas fa-plus me-1"></i>Complete Profile
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Quick Links -->
+                <div class="profile-mini">
+                    <h6><i class="fas fa-link me-2"></i>Quick Links</h6>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'booking:calendar' %}" class="btn btn-outline-secondary btn-sm text-start">
+                            <i class="fas fa-calendar-alt me-2"></i>Booking Calendar
+                        </a>
+                        <a href="{% url 'manufacturing:overview' %}" class="btn btn-outline-secondary btn-sm text-start">
+                            <i class="fas fa-industry me-2"></i>Manufacturing
+                        </a>
+                        <a href="{% url 'core:products' %}" class="btn btn-outline-secondary btn-sm text-start">
+                            <i class="fas fa-box me-2"></i>Our Products
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /container-fluid -->
+</div><!-- /main-content -->
+</div><!-- /dashboard-page -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Sidebar toggle
+document.getElementById('sidebarToggle').addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('sidebar').classList.toggle('collapsed');
+    document.getElementById('mainContent').classList.toggle('expanded');
+});
+</script>
+{% endblock %}

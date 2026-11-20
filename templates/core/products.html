@@ -1,0 +1,95 @@
+{% extends "layouts/base.html" %}
+{% block title %}Our Products — Navalsingh Sugar Factory{% endblock %}
+{% block extra_css %}
+<style>
+.product-hero { background:linear-gradient(135deg,#8e352e,#c0392b); color:#fff; padding:4rem 0 3rem; }
+.product-section { padding:3rem 0; border-bottom:1px solid #f0e0de; }
+.product-section:last-child { border-bottom:none; }
+.product-section img { width:100%; border-radius:14px; box-shadow:0 8px 30px rgba(0,0,0,.12); object-fit:cover; max-height:380px; }
+.product-section h2 { color:#8e352e; font-weight:800; font-size:1.8rem; }
+.product-tag { display:inline-block; padding:5px 14px; border-radius:20px; font-size:.82rem; font-weight:700; margin-bottom:.8rem; }
+</style>
+{% endblock %}
+{% load static %}
+{% block content %}
+<div class="product-hero text-center">
+    <div class="container">
+        <h1 style="font-weight:800;font-size:2.5rem;">Our Products</h1>
+        <p class="opacity-85 lead">Quality produce from Navalsingh Sugar Factory</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Sugar -->
+    <div class="product-section row g-5 align-items-center" id="sugar">
+        <div class="col-md-5">
+            <img src="{% static 'images/sugar.jpg' %}" alt="Sugar" onerror="this.src='https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&h=380&fit=crop'">
+        </div>
+        <div class="col-md-7">
+            <span class="product-tag" style="background:#fff3cd;color:#856404;">Sugar</span>
+            <h2>Cane Sugar</h2>
+            <p class="text-muted">Cane sugar is a category of sugar that is made exclusively from sugarcane, as opposed to sugar products made from sugar beets. Our cane sugar is renowned for its purity, superior taste, and quality — produced under strict hygiene and quality control standards at every stage of manufacturing.</p>
+        </div>
+    </div>
+
+    <!-- Bio Fuel -->
+    <div class="product-section row g-5 align-items-center flex-md-row-reverse" id="biofuel">
+        <div class="col-md-5">
+            <img src="{% static 'images/power.jpg' %}" alt="Bio Fuel" onerror="this.src='https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=500&h=380&fit=crop'">
+        </div>
+        <div class="col-md-7">
+            <span class="product-tag" style="background:#d1e7dd;color:#0a3622;">Bio Fuel</span>
+            <h2>Sugarcane Ethanol</h2>
+            <p class="text-muted">Sugarcane ethanol is an alcohol-based fuel produced by the fermentation of sugarcane juice, molasses, and both senescent and non-senescent plant tissues. It is a clean, renewable fuel source that significantly reduces carbon emissions compared to fossil fuels.</p>
+        </div>
+    </div>
+
+    <!-- Renewable Energy -->
+    <div class="product-section row g-5 align-items-center" id="renewable">
+        <div class="col-md-5">
+            <img src="{% static 'images/reuse.jpg' %}" alt="Renewable Energy" onerror="this.src='https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=500&h=380&fit=crop'">
+        </div>
+        <div class="col-md-7">
+            <span class="product-tag" style="background:#cfe2ff;color:#084298;">Renewable</span>
+            <h2>Renewable Energy</h2>
+            <p class="text-muted">Our factory generates energy that produces no greenhouse gas emissions from fossil fuels and reduces certain types of air pollution. Bagasse — the fibrous cane residue — is burned to generate steam and electricity, making our facility largely energy self-sufficient.</p>
+        </div>
+    </div>
+
+    <!-- Bagasse -->
+    <div class="product-section row g-5 align-items-center flex-md-row-reverse" id="bagasse">
+        <div class="col-md-5">
+            <img src="{% static 'images/bagasse.jpg' %}" alt="Bagasse" onerror="this.src='https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=500&h=380&fit=crop'">
+        </div>
+        <div class="col-md-7">
+            <span class="product-tag" style="background:#f8d7da;color:#842029;">Bagasse</span>
+            <h2>Bagasse</h2>
+            <p class="text-muted">Bagasse is used to generate steam required to operate the sugar mill. The mill produces, per tonne of cane, approximately 35 kWh of electricity and 450 kg of exhaust steam. This by-product makes the entire operation more sustainable and cost-effective.</p>
+        </div>
+    </div>
+
+    <!-- Organic Fertilizer -->
+    <div class="product-section row g-5 align-items-center" id="fertilizer">
+        <div class="col-md-5">
+            <img src="{% static 'images/organic.jpg' %}" alt="Organic Fertilizer" onerror="this.src='https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=500&h=380&fit=crop'">
+        </div>
+        <div class="col-md-7">
+            <span class="product-tag" style="background:#d1e7dd;color:#0a3622;">Organic Fertilizer</span>
+            <h2>Organic Fertilizer (Press Mud)</h2>
+            <p class="text-muted">Organic fertilizer derived from press mud — a by-product of the clarification process — is an excellent soil conditioner. Rich in nutrients, it improves soil structure and promotes healthy crop growth for local farmers.</p>
+        </div>
+    </div>
+
+    <!-- Brown Sugar -->
+    <div class="product-section row g-5 align-items-center flex-md-row-reverse" id="brown">
+        <div class="col-md-5">
+            <img src="{% static 'images/brown.jpg' %}" alt="Brown Sugar" onerror="this.src='https://images.unsplash.com/photo-1610219171722-87b3f4170557?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8c3VnYXJ8ZW58MHx8MHx8fDA%3D'">
+        </div>
+        <div class="col-md-7">
+            <span class="product-tag" style="background:#fff3cd;color:#856404;">Brown Sugar</span>
+            <h2>Brown Sugar</h2>
+            <p class="text-muted">Brown sugar is produced by adding molasses syrup to boiling sugar crystals that result from the sugar-refining process. It retains a richer, more complex flavour than white sugar and is widely used in culinary applications, confectionery, and beverages.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

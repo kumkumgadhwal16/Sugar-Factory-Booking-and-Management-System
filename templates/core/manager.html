@@ -1,0 +1,46 @@
+{% extends "layouts/base.html" %}
+{% block title %}Management — Navalsingh Sugar Factory{% endblock %}
+{% block content %}
+<div style="background:linear-gradient(135deg,#8e352e,#c0392b);color:#fff;padding:3rem 0;">
+    <div class="container"><h1 style="font-weight:800;">Management</h1></div>
+</div>
+<div style="background:#fff;border-bottom:3px solid #f0e0de;margin-bottom:2rem;">
+    <div class="container">
+        <a href="{% url 'core:about' %}" style="display:inline-block;padding:10px 16px;color:#555;text-decoration:none;font-size:.9rem;font-weight:600;">Overview</a>
+        <a href="{% url 'core:contact' %}" style="display:inline-block;padding:10px 16px;color:#555;text-decoration:none;font-size:.9rem;font-weight:600;">Contact Info</a>
+        <a href="{% url 'core:manager' %}" style="display:inline-block;padding:10px 16px;color:#8e352e;text-decoration:none;font-size:.9rem;font-weight:600;border-bottom:3px solid #8e352e;margin-bottom:-3px;" id="about">Manager</a>
+        <a href="{% url 'core:performance' %}" style="display:inline-block;padding:10px 16px;color:#555;text-decoration:none;font-size:.9rem;font-weight:600;">Performance Data</a>
+    </div>
+</div>
+<div class="container py-4">
+    {% if managers %}
+    <div class="row g-4">
+        {% for manager in managers %}
+        <div class="col-sm-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-3 h-100 text-center p-4">
+                {% if manager.photo %}
+                <img src="{{ manager.photo.url }}" class="rounded-circle mx-auto mb-3" style="width:100px;height:100px;object-fit:cover;" alt="{{ manager.name }}">
+                {% else %}
+                <div class="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width:100px;height:100px;background:#f0e0de;">
+                    <i class="fas fa-user fa-2x" style="color:#8e352e;"></i>
+                </div>
+                {% endif %}
+                <h5 class="fw-bold mb-1" style="color:#8e352e;">{{ manager.name }}</h5>
+                <p class="text-muted small mb-1">{{ manager.designation }}</p>
+                {% if manager.department %}<p class="text-muted small mb-1">{{ manager.department }}</p>{% endif %}
+                {% if manager.phone %}<p class="small"><i class="fas fa-phone me-1"></i>{{ manager.phone }}</p>{% endif %}
+                {% if manager.email %}<p class="small"><i class="fas fa-envelope me-1"></i>{{ manager.email }}</p>{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-users fa-3x text-muted mb-3 d-block"></i>
+        <h5 class="text-muted">No managers added yet.</h5>
+        <p class="text-muted small">Managers can be added via the Django Admin panel.</p>
+        {% if user.is_staff %}<a href="/admin/core/manager/add/" class="btn btn-sm" style="background:#8e352e;color:#fff;">Add Manager</a>{% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
